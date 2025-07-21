@@ -1,1 +1,1 @@
-from .api_fetcher import api_fetcher
+from .api_fetcher import ApiFetcher
