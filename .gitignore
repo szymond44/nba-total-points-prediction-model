@@ -1,0 +1,3 @@
+.venv/*
+src/data/__pycache__/*
+notebooks/__pycache__/*
