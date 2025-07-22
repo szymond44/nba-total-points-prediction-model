@@ -97,3 +97,18 @@ class ApiFetcher:
         games_df = games_df.sort_values('date').reset_index(drop=True)
 
         return games_df
+    
+    def get_numeric_dataframe(self):
+        """
+        Returns NBA game data structured for machine learning analysis.
+        Each row represents a complete game with home/away team statistics
+        ready for feature engineering and model training.
+        """
+        base_columns = ['fga', 'fg_pct', 'fg3a', 'fg3_pct', 'oreb', 'dreb', 'ast', 'stl', 'blk', 'tov', 'pf', 'pts']
+        columns = []
+        
+        for col in base_columns:
+            columns.append(f'home_{col}')
+            columns.append(f'away_{col}')
+
+        return self.data[columns] 
