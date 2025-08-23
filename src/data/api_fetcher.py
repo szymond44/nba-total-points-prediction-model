@@ -111,4 +111,35 @@ class ApiFetcher:
             columns.append(f'home_{col}')
             columns.append(f'away_{col}')
 
-        return self.data[columns] 
+        return self.data[columns]
+
+    def get_df(self):
+        """
+        Numeric dataframe + away_team, home_team and date
+        """
+        base_columns = ['fga', 'fg_pct', 'fg3a', 'fg3_pct', 'oreb', 'dreb', 'ast', 'stl', 'blk', 'tov', 'pf', 'pts', 'team']
+        columns = ['date']
+        
+        for col in base_columns:
+            columns.append(f'home_{col}')
+            columns.append(f'away_{col}')
+        df = self.data[columns].copy()  # Dodaj .copy() żeby uniknąć ostrzeżeń
+
+        return self.__get_time_feature__(df)
+    
+    def __get_time_feature__(self, df):
+        df = df.copy()  # Unikaj modyfikacji oryginalnego DataFrame
+        # Convert date to datetime if it's not already
+        df['date'] = pd.to_datetime(df['date'])
+        # Calculate time coefficient: more recent games get higher weight
+        time_diff = (df['date'].max() - df['date']).dt.days
+        df['time_coeff'] = 1 / (1 + time_diff)
+        df = df.drop(columns=['date'])
+        return df
+    
+    def get_dataframe(self):
+        """
+        TODO: This method shall be the endpoint for getting actually prepared dataframe with all features.
+        """
+        raise NotImplementedError("This method is not yet implemented")
+
