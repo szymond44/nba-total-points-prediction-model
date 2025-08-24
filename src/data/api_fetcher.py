@@ -139,8 +139,8 @@ class ApiFetcher:
     
     def df_with_id(self):
         numeric_df = ApiFetcher.get_numeric_dataframe().copy
-        teams_sorted = sorted(self.data['home_team'].unique())  # assumes 'home_team' exists
-        team_to_id = {team: idx + 1 for idx, team in enumerate(teams_sorted)}
+        teams_sorted = sorted(self.data['home_team'].unique()) 
+        team_to_id = {team: idx + 1 for idx, team in enumerate(teams_sorted)} #enumerate over list of teams give id for teams sorted alphabetically
 
         # Map IDs from original data
         numeric_df['home_team_id'] = self.data['home_team'].map(team_to_id)
