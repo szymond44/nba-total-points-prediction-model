@@ -137,6 +137,18 @@ class ApiFetcher:
         df = df.drop(columns=['date'])
         return df
     
+    def df_with_id(self):
+        numeric_df = ApiFetcher.get_numeric_dataframe().copy
+        teams_sorted = sorted(self.data['home_team'].unique())  # assumes 'home_team' exists
+        team_to_id = {team: idx + 1 for idx, team in enumerate(teams_sorted)}
+
+        # Map IDs from original data
+        numeric_df['home_team_id'] = self.data['home_team'].map(team_to_id)
+        numeric_df['away_team_id'] = self.data['away_team'].map(team_to_id)
+
+        return numeric_df
+
+    
     def get_dataframe(self):
         """
         TODO: This method shall be the endpoint for getting actually prepared dataframe with all features.
