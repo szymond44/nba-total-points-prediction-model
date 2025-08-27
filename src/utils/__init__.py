@@ -1,1 +1,1 @@
-from .distribution import distribution_calculating
+from .distribution import distribution_calculating, check_distribution
