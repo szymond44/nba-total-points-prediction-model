@@ -1,40 +1,72 @@
 import requests
 import pandas as pd
 import json
-
-response_headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-    'Accept': 'application/json, text/plain, */*',
-    'Accept-Language': 'en-US,en;q=0.9',
-    'Accept-Encoding': 'gzip, deflate, br',
-    'Connection': 'keep-alive',
-    'Host': 'stats.nba.com',
-    'Referer': 'https://www.nba.com/',
-    'x-nba-stats-origin': 'stats',
-    'x-nba-stats-token': 'true'
-}
-
-response_params = {
-    'Counter': '10',
-    'DateFrom': '',
-    'DateTo': '',
-    'Direction': 'DESC',
-    'LeagueID': '00',
-    'PlayerOrTeam': 'T',
-    'Season': '2024-25',
-    'SeasonType': 'Regular Season',
-    'Sorter': 'DATE'
-}
 class ApiFetcher:
-    def __init__(self):
-        self.data = self.__fetch_dataframe__()
 
-    def __fetch_dataframe__(self):
-        base_url = "https://stats.nba.com/stats/leaguegamelog"
+    RESPONSE_HEADERS = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive',
+        'Host': 'stats.nba.com',
+        'Referer': 'https://www.nba.com/',
+        'x-nba-stats-origin': 'stats',
+        'x-nba-stats-token': 'true'
+    }
+
+    BASE_URL = "https://stats.nba.com/stats/leaguegamelog"
+
+    MINIMAL_YEAR = 1980
+    MAXIMAL_YEAR = 2050
+
+    def __init__(self, starting_year, ending_year):
+        self.__seasons__ = self.__calculate_season_list__(starting_year, ending_year)
+        data = self.__fetch_dataframes__()
+        self.data = data.dropna(axis=0).sort_values(by='date').reset_index(drop=True)
+
+    def __calculate_season_list__(self, starting_year, ending_year):
+        starting_year = max(starting_year, self.MINIMAL_YEAR)
+        ending_year = min(ending_year, self.MAXIMAL_YEAR)
+        seasons = []
+        for year in range(starting_year, ending_year):
+            season_str = f"{year}-{str(year + 1)[-2:]}"
+            seasons.append(season_str)
+        return seasons
+    
+    
+    def __fetch_dataframes__(self):
+        data = pd.DataFrame()
+        for season in self.__seasons__:
+            df = self.__fetch_single_dataframe__(season)
+            if not df.empty:
+                data = pd.concat([data, df], ignore_index=True)
+            else:
+                if not data.empty:
+                    return data
+        return data
+
+    def __fetch_single_dataframe__(self, season: str):
+
         
+        response_params = {
+            'Counter': '10',
+            'DateFrom': '',
+            'DateTo': '',
+            'Direction': 'DESC',
+            'LeagueID': '00',
+            'PlayerOrTeam': 'T',
+            'Season': season,
+            'SeasonType': 'Regular Season',
+            'Sorter': 'DATE'
+        }
 
-        response = requests.get(url=base_url, headers=response_headers, params=response_params)
+
+        response = requests.get(url=self.BASE_URL, headers=self.RESPONSE_HEADERS, params=response_params)
         data = response.json()
+
+        if response.status_code != 200 or 'resultSets' not in data or not data['resultSets']:
+            return pd.DataFrame()
 
         headers = data['resultSets'][0]['headers']
         rows = data['resultSets'][0]['rowSet']
@@ -154,4 +186,4 @@ class ApiFetcher:
         TODO: This method shall be the endpoint for getting actually prepared dataframe with all features.
         """
         raise NotImplementedError("This method is not yet implemented")
-
+    
