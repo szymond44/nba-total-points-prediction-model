@@ -1,1 +1,0 @@
-## TODO: Implement class method to get embedding vecotor for a team
