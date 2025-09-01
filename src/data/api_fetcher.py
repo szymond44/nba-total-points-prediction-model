@@ -148,9 +148,12 @@ class ApiFetcher:
 
         return numeric_df
    
-    def seasonal_team_ids(self, df, home_col='home_team', away_col='away_team', date_col='date'):
-
-        df = df.copy()
+    def seasonal_team_ids(self, df = None, home_col='home_team', away_col='away_team', date_col='date'):
+        
+        if df is None:
+            df = self.data.copy()
+        else:
+            df = df.copy()
         
         # Create season column if it doesn't exist
         if 'season' not in df.columns:
