@@ -206,12 +206,12 @@ class ApiFetcher:
                 team_season_to_id[key] = current_id
                 current_id += 1
         
-    # Map IDs to DataFrame
-    df['home_team_season_id'] = df['home_team_season'].map(team_season_to_id)
-    df['away_team_season_id'] = df['away_team_season'].map(team_season_to_id)
-    
-    # No mapping returned
-    return df
+        # Map IDs to DataFrame
+        df['home_team_season_id'] = df['home_team_season'].map(team_season_to_id)
+        df['away_team_season_id'] = df['away_team_season'].map(team_season_to_id)
+        
+        # No mapping returned
+        return df
 
     
     def get_dataframe(self):
