@@ -179,42 +179,8 @@ class ApiFetcher:
         numeric_df['away_team_id'] = self.data['away_team'].map(team_to_id)
 
         return numeric_df
+
     
-    def create_seasonal_team_ids(df, home_col='home_team', away_col='away_team', date_col='date'):
-
-        df = df.copy()
-        
-        # Create season column if it doesn't exist
-        if 'season' not in df.columns:
-            df[date_col] = pd.to_datetime(df[date_col])
-            df['season'] = df[date_col].apply(lambda d: d.year if d.month >= 10 else d.year - 1)
-        
-        # Create team-season strings
-        df['home_team_season'] = df[home_col].astype(str) + "_" + df['season'].astype(str)
-        df['away_team_season'] = df[away_col].astype(str) + "_" + df['season'].astype(str)
-        
-        # Unique seasons sorted
-        unique_seasons = sorted(df['season'].unique())
-        
-        team_season_to_id = {}
-        current_id = 0
-        
-        for season in unique_seasons:
-            # Get all teams in this season
-            teams_in_season = set(df.loc[df['season'] == season, home_col]) | set(df.loc[df['season'] == season, away_col])
-            # Sort alphabetically
-            for team in sorted(teams_in_season):
-                key = f"{team}_{season}"
-                team_season_to_id[key] = current_id
-                current_id += 1
-        
-        # Map IDs to DataFrame
-        df['home_team_season_id'] = df['home_team_season'].map(team_season_to_id)
-        df['away_team_season_id'] = df['away_team_season'].map(team_season_to_id)
-        
-        return df
-
-
     def get_dataframe(self):
         """
         TODO: This method shall be the endpoint for getting actually prepared dataframe with all features.
