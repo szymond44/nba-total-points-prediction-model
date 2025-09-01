@@ -148,7 +148,7 @@ class ApiFetcher:
 
         return numeric_df
    
-    def create_seasonal_team_ids(df, home_col='home_team', away_col='away_team', date_col='date'):
+    def seasonal_team_ids(self, df, home_col='home_team', away_col='away_team', date_col='date'):
 
         df = df.copy()
         
