@@ -180,39 +180,39 @@ class ApiFetcher:
 
         return numeric_df
 
-    def create_seasonal_team_ids(self, home_col='home_team', away_col='away_team', date_col='date'):
-        df = self.data.copy()
+    def create_numeric_with_team_ids(self, home_col='home_team', away_col='away_team', date_col='date'):
         
-        # Create 'season' column if missing
+        df = self.data.copy()
+    
+        # Ensure 'season' column exists
         if 'season' not in df.columns:
             df[date_col] = pd.to_datetime(df[date_col])
             df['season'] = df[date_col].apply(lambda d: d.year if d.month >= 10 else d.year - 1)
-        
-        # Create team-season strings
+    
+        # Create team-season keys
         df['home_team_season'] = df[home_col].astype(str) + "_" + df['season'].astype(str)
         df['away_team_season'] = df[away_col].astype(str) + "_" + df['season'].astype(str)
-        
-        # Generate mapping from team-season to unique IDs
-        unique_seasons = sorted(df['season'].unique())
-        team_season_to_id = {}
-        current_id = 0
-        
-        for season in unique_seasons:
-            teams_in_season = set(df.loc[df['season'] == season, home_col]) | set(df.loc[df['season'] == season, away_col])
-            for team in sorted(teams_in_season):
-                key = f"{team}_{season}"
-                team_season_to_id[key] = current_id
-                current_id += 1
-        
+    
         # Map team-season to numeric IDs
+        unique_teams = sorted(df['home_team_season'].unique().tolist() + df['away_team_season'].unique().tolist())
+        team_season_to_id = {team_season: idx for idx, team_season in enumerate(unique_teams)}
+    
+        # Assign IDs
         df['home_team_season_id'] = df['home_team_season'].map(team_season_to_id)
         df['away_team_season_id'] = df['away_team_season'].map(team_season_to_id)
-        
-        # Select numeric columns (including the new IDs)
-        numeric_cols = [col for col in df.columns if (col.startswith('home_') or col.startswith('away_')) and col not in [home_col, away_col, 'home_team_season', 'away_team_season']]
-        numeric_cols += ['home_team_season_id', 'away_team_season_id']
-        
-        return df[numeric_cols]
+    
+        # Select numeric columns
+        base_columns = ['fga', 'fg_pct', 'fg3a', 'fg3_pct', 'oreb', 'dreb', 'ast', 'stl', 'blk', 'tov', 'pf', 'pts']
+        selected_columns = []
+        for col in base_columns:
+            selected_columns.append(f'home_{col}')
+            selected_columns.append(f'away_{col}')
+    
+        # Add team IDs
+        selected_columns += ['home_team_season_id', 'away_team_season_id']
+    
+        return df[selected_columns]
+
     
     def get_dataframe(self):
         """
