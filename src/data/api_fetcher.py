@@ -152,37 +152,37 @@ class ApiFetcher:
         return numeric_df
 
     def create_numeric_with_team_ids(self, home_col='home_team', away_col='away_team', date_col='date'):
-        
         df = self.data.copy()
-    
+
         # Ensure 'season' column exists
         if 'season' not in df.columns:
             df[date_col] = pd.to_datetime(df[date_col])
             df['season'] = df[date_col].apply(lambda d: d.year if d.month >= 10 else d.year - 1)
-    
+
         # Create team-season keys
         df['home_team_season'] = df[home_col].astype(str) + "_" + df['season'].astype(str)
         df['away_team_season'] = df[away_col].astype(str) + "_" + df['season'].astype(str)
-    
-        # Map team-season to numeric IDs
-        unique_teams = sorted(df['home_team_season'].unique().tolist() + df['away_team_season'].unique().tolist())
+
+        # Map team-season to numeric IDs (unique)
+        unique_teams = sorted(set(df['home_team_season']).union(set(df['away_team_season'])))
         team_season_to_id = {team_season: idx for idx, team_season in enumerate(unique_teams)}
-    
+
         # Assign IDs
         df['home_team_season_id'] = df['home_team_season'].map(team_season_to_id)
         df['away_team_season_id'] = df['away_team_season'].map(team_season_to_id)
-    
-        # Select numeric columns
+
+        # Select numeric columns (exclude date from numeric)
         base_columns = ['fga', 'fg_pct', 'fg3a', 'fg3_pct', 'oreb', 'dreb', 'ast', 'stl', 'blk', 'tov', 'pf', 'pts']
-        selected_columns = []
-        for col in base_columns:
-            selected_columns.append(f'home_{col}')
-            selected_columns.append(f'away_{col}')
-    
+        selected_columns = [f'home_{col}' for col in base_columns] + [f'away_{col}' for col in base_columns]
+
         # Add team IDs
         selected_columns += ['home_team_season_id', 'away_team_season_id']
-    
-        return df[selected_columns]
+
+        #Date for training
+        df_numeric = df[selected_columns].copy()
+        df_numeric[date_col] = df[date_col]
+
+        return df_numeric
 
     
     def get_dataframe(self, numeric: bool = True, ids: bool = False, date: bool = False, time_coeff: bool = False):
