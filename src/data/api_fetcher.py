@@ -20,6 +20,8 @@ class ApiFetcher:
     MINIMAL_YEAR = 1980
     MAXIMAL_YEAR = 2050
 
+    NUMERIC_COLUMNS = ['fga', 'fg_pct', 'fg3a', 'fg3_pct', 'oreb', 'dreb', 'ast', 'stl', 'blk', 'tov', 'pf', 'pts']
+
     def __init__(self, starting_year, ending_year):
         self.__seasons__ = self.__calculate_season_list__(starting_year, ending_year)
         data = self.__fetch_dataframes__()
@@ -48,7 +50,6 @@ class ApiFetcher:
 
     def __fetch_single_dataframe__(self, season: str):
 
-        
         response_params = {
             'Counter': '10',
             'DateFrom': '',
@@ -130,35 +131,6 @@ class ApiFetcher:
 
         return games_df
     
-    def get_numeric_dataframe(self):
-        """
-        Returns NBA game data structured for machine learning analysis.
-        Each row represents a complete game with home/away team statistics
-        ready for feature engineering and model training.
-        """
-        base_columns = ['fga', 'fg_pct', 'fg3a', 'fg3_pct', 'oreb', 'dreb', 'ast', 'stl', 'blk', 'tov', 'pf', 'pts']
-        columns = []
-        
-        for col in base_columns:
-            columns.append(f'home_{col}')
-            columns.append(f'away_{col}')
-
-        return self.data[columns]
-
-    def get_df(self):
-        """
-        Numeric dataframe + away_team, home_team and date
-        """
-        base_columns = ['fga', 'fg_pct', 'fg3a', 'fg3_pct', 'oreb', 'dreb', 'ast', 'stl', 'blk', 'tov', 'pf', 'pts', 'team']
-        columns = ['date']
-        
-        for col in base_columns:
-            columns.append(f'home_{col}')
-            columns.append(f'away_{col}')
-        df = self.data[columns].copy()  # Dodaj .copy() żeby uniknąć ostrzeżeń
-
-        return self.__get_time_feature__(df)
-    
     def __get_time_feature__(self, df):
         df = df.copy()  # Unikaj modyfikacji oryginalnego DataFrame
         # Convert date to datetime if it's not already
@@ -169,12 +141,11 @@ class ApiFetcher:
         df = df.drop(columns=['date'])
         return df
     
-    def df_with_id(self):
-        numeric_df = self.get_numeric_dataframe().copy()
-        teams_sorted = sorted(self.data['home_team'].unique()) 
-        team_to_id = {team: idx for idx, team in enumerate(teams_sorted)} #enumerate over list of teams give id for teams sorted alphabetically
+    def __get_numeric_dataframe_w_id__(self, df):
+        numeric_df = df.copy()
+        teams_sorted = sorted(numeric_df['home_team'].unique()) 
+        team_to_id = {team: idx for idx, team in enumerate(teams_sorted)} 
 
-        # Map IDs from original data
         numeric_df['home_team_id'] = self.data['home_team'].map(team_to_id)
         numeric_df['away_team_id'] = self.data['away_team'].map(team_to_id)
 
@@ -214,9 +185,24 @@ class ApiFetcher:
         return df[selected_columns]
 
     
-    def get_dataframe(self):
+    def get_dataframe(self, numeric: bool = True, ids: bool = False, date: bool = False, time_coeff: bool = False):
+        base_columns = self.NUMERIC_COLUMNS if numeric else self.NUMERIC_COLUMNS + ['team']
+        columns = []
         """
-        TODO: This method shall be the endpoint for getting actually prepared dataframe with all features.
+        Parametrized interface to get the raw dataframe
         """
-        raise NotImplementedError("This method is not yet implemented")
+        for col in base_columns:
+            columns.append(f'home_{col}')
+            columns.append(f'away_{col}')
+
+        if date or time_coeff:
+            columns += ['date']
+        df = self.data[columns].copy()
+        if ids:
+            df = self.__get_numeric_dataframe_w_id__(df)
+        if time_coeff:
+            df = self.__get_time_feature__(df)
+        return df
+        
+
     
