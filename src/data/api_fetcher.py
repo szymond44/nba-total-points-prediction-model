@@ -180,9 +180,8 @@ class ApiFetcher:
 
         return numeric_df
 
-    def create_seasonal_team_ids(df, home_col='home_team', away_col='away_team', date_col='date'):
-        
-        df = df.copy()
+    def create_seasonal_team_ids(self, home_col='home_team', away_col='away_team', date_col='date'):
+        df = self.data.copy()  
         
         # Create season column if it doesn't exist
         if 'season' not in df.columns:
@@ -206,12 +205,12 @@ class ApiFetcher:
                 team_season_to_id[key] = current_id
                 current_id += 1
         
-        # Map IDs to DataFrame
-        df['home_team_season_id'] = df['home_team_season'].map(team_season_to_id)
-        df['away_team_season_id'] = df['away_team_season'].map(team_season_to_id)
+        # Keep only numeric columns and new IDs
+        numeric_cols = [col for col in df.columns if col.startswith('home_') or col.startswith('away_') and col not in [home_col, away_col]]
+        numeric_cols += ['home_team_season_id', 'away_team_season_id']
         
-        # No mapping returned
-        return df
+        return df[numeric_cols]
+
 
     
     def get_dataframe(self):
