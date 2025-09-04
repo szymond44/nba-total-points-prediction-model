@@ -141,7 +141,7 @@ class ApiFetcher:
         df = df.drop(columns=['date'])
         return df
     
-    def __get_numeric_dataframe_w_id__(self, df):
+    def __get_team_id__(self, df):
         numeric_df = df.copy()
         teams_sorted = sorted(numeric_df['home_team'].unique()) 
         team_to_id = {team: idx for idx, team in enumerate(teams_sorted)} 
@@ -151,18 +151,18 @@ class ApiFetcher:
 
         return numeric_df
 
-    def create_numeric_with_team_ids(self, home_col='home_team', away_col='away_team', date_col='date'):
+    def __get_season_id__(self, data):
         
-        df = self.data.copy()
+        df = data.copy()
     
         # Ensure 'season' column exists
         if 'season' not in df.columns:
-            df[date_col] = pd.to_datetime(df[date_col])
-            df['season'] = df[date_col].apply(lambda d: d.year if d.month >= 10 else d.year - 1)
+            df['date'] = pd.to_datetime(df['date'])
+            df['season'] = df['date'].apply(lambda d: d.year if d.month >= 10 else d.year - 1)
     
         # Create team-season keys
-        df['home_team_season'] = df[home_col].astype(str) + "_" + df['season'].astype(str)
-        df['away_team_season'] = df[away_col].astype(str) + "_" + df['season'].astype(str)
+        df['home_team_season'] = df['home_team'] + "_" + df['season'].astype(str)
+        df['away_team_season'] = df['away_team'] + "_" + df['season'].astype(str)
     
         # Map team-season to numeric IDs
         unique_teams = sorted(df['home_team_season'].unique().tolist() + df['away_team_season'].unique().tolist())
@@ -171,21 +171,13 @@ class ApiFetcher:
         # Assign IDs
         df['home_team_season_id'] = df['home_team_season'].map(team_season_to_id)
         df['away_team_season_id'] = df['away_team_season'].map(team_season_to_id)
+
+        df = df.drop(columns=['season', 'home_team_season', 'away_team_season'])
     
-        # Select numeric columns
-        base_columns = ['fga', 'fg_pct', 'fg3a', 'fg3_pct', 'oreb', 'dreb', 'ast', 'stl', 'blk', 'tov', 'pf', 'pts']
-        selected_columns = []
-        for col in base_columns:
-            selected_columns.append(f'home_{col}')
-            selected_columns.append(f'away_{col}')
-    
-        # Add team IDs
-        selected_columns += ['home_team_season_id', 'away_team_season_id']
-    
-        return df[selected_columns]
+        return df
 
     
-    def get_dataframe(self, numeric: bool = True, ids: bool = False, date: bool = False, time_coeff: bool = False):
+    def get_dataframe(self, numeric: bool = True, ids: bool = False, date: bool = False, time_coeff: bool = False, season_id: bool = False):
         base_columns = self.NUMERIC_COLUMNS if numeric else self.NUMERIC_COLUMNS + ['team']
         columns = []
         """
@@ -195,13 +187,15 @@ class ApiFetcher:
             columns.append(f'home_{col}')
             columns.append(f'away_{col}')
 
-        if date or time_coeff:
+        if date or time_coeff or season_id:
             columns += ['date']
         df = self.data[columns].copy()
         if ids:
-            df = self.__get_numeric_dataframe_w_id__(df)
+            df = self.__get_team_id__(df)
         if time_coeff:
             df = self.__get_time_feature__(df)
+        if season_id:
+            df = self.__get_season_id__(df)
         return df
         
 
