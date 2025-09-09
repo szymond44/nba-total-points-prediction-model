@@ -1,4 +1,4 @@
-from sklearn.discriminant_analysis import StandardScaler
+from sklearn.preprocessing import StandardScaler
 from .team_embeddings import TeamEmbeddings
 from .embeddings_dataset import NBAEmbeddingDataset
 from torch.utils.data import DataLoader
@@ -48,13 +48,15 @@ class TeamEmbeddingsModel:
         exclude_cols = target_cols + team_id_cols + ['date', 'home_team', 'away_team']
         numeric_cols = [col for col in df1.columns if col not in exclude_cols]
 
+
         X_numeric_raw = df1[numeric_cols].values
         X_team_ids = df1[team_id_cols].astype(int).values
         y = df1[target_cols].values 
-
         if scaler is None:
             scaler = StandardScaler()
-        X_numeric = scaler.fit_transform(X_numeric_raw)
+            X_numeric = scaler.fit_transform(X_numeric_raw)
+        else:
+            X_numeric = scaler.transform(X_numeric_raw)
 
         return X_numeric, X_team_ids, y, scaler, numeric_cols
 
