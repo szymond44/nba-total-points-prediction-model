@@ -157,12 +157,12 @@ class ApiFetcher:
     
         # Ensure 'season' column exists
         if 'season' not in df.columns:
-            df[date_col] = pd.to_datetime(df[date_col])
-            df['season'] = df[date_col].apply(lambda d: d.year if d.month >= 10 else d.year - 1)
+            df['date'] = pd.to_datetime(df['date'])
+            df['season'] = df['date'].apply(lambda d: d.year if d.month >= 10 else d.year - 1)
     
         # Create team-season keys
-        df['home_team_season'] = df[home_col].astype(str) + "_" + df['season'].astype(str)
-        df['away_team_season'] = df[away_col].astype(str) + "_" + df['season'].astype(str)
+        df['home_team_season'] = df['home_team'] + "_" + df['season'].astype(str)
+        df['away_team_season'] = df['away_team'] + "_" + df['season'].astype(str)
     
         # Map team-season to numeric IDs
         unique_teams = sorted(df['home_team_season'].unique().tolist() + df['away_team_season'].unique().tolist())
