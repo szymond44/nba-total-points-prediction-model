@@ -1,38 +1,28 @@
-asttokens==3.0.0
-certifi==2025.7.14
-charset-normalizer==3.4.2
-colorama==0.4.6
-comm==0.2.2
-debugpy==1.8.15
-decorator==5.2.1
-executing==2.2.0
-idna==3.10
-ipykernel==6.30.0
-ipython==9.4.0
-ipython_pygments_lexers==1.1.1
-jedi==0.19.2
-jupyter_client==8.6.3
-jupyter_core==5.8.1
-matplotlib-inline==0.1.7
-nest-asyncio==1.6.0
-numpy==2.3.1
-packaging==25.0
-pandas==2.3.1
-parso==0.8.4
-platformdirs==4.3.8
-prompt_toolkit==3.0.51
-psutil==7.0.0
-pure_eval==0.2.3
-Pygments==2.19.2
-python-dateutil==2.9.0.post0
-pytz==2025.2
-pywin32==311
-pyzmq==27.0.0
-requests==2.32.4
-six==1.17.0
-stack-data==0.6.3
-tornado==6.5.1
-traitlets==5.14.3
-tzdata==2025.2
-urllib3==2.5.0
-wcwidth==0.2.13
+# Core Data Science
+pandas>=2.3.1
+numpy>=2.3.1
+scipy>=1.16.1
+
+# Machine Learning
+torch>=2.8.0
+scikit-learn>=1.7.1
+xgboost>=3.0.4
+
+# API & Web
+fastapi>=0.116.1
+uvicorn>=0.35.0
+requests>=2.32.4
+
+# Data Visualization
+matplotlib>=3.10.3
+seaborn>=0.13.2
+
+# Progress bars
+tqdm>=4.67.1
+
+# Jupyter Environment
+ipykernel>=6.30.0
+ipython>=9.4.0
+
+# Utilities
+python-dateutil>=2.9.0
