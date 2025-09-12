@@ -55,8 +55,8 @@ df = api.get_dataframe('boxscoreadvanced')
     │   ├── data/              # data fetching and processing  
     │   ├── model/             # regression models
     │   │   └── team_embeddings
+    │   ├── cache/             # caching layer 
     │   └── utils/             # helper functions
-    ├── cache/                 # cached API responses
     ├── README.md
     └── requirements.txt
 ```
