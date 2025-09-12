@@ -1,10 +1,10 @@
 <h1 align="center">
-<a href="https://github.com/szymond44/model/" style="text-decoration: none; color:white; font-weight: 900">🏀 NBA Team Points Prediction Model</a>
+🏀 NBA Team Points Prediction Model
 </h1>
 
 <div align="center">
-🙋 <span style="font-weight:1000;">authors:</span> <a href="https://github.com/szymond44/" style="text-decoration: none; color:white; font-weight: 500; letter-spacing:0.5px">szymond44</a>, <a href="https://github.com/gwiazdan" style="text-decoration: none; color:white; font-weight: 500; letter-spacing:0.5px">gwiazdan</a>  <br/>
-📆 <span style="font-weight:1000;">date:</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="letter-spacing:2px; font-weight:500">21-07-2025</span>
+🙋 <b>authors:</b> <a href="https://github.com/szymond44/">szymond44</a>, <a href="https://github.com/gwiazdan">gwiazdan</a><br/>
+📆 <b>date:</b> 21-07-2025
 </div>
 
 ---
