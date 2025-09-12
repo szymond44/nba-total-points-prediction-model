@@ -1,1 +1,2 @@
 from .embeddings_train import TeamEmbeddingsModel
+from .embedding_fetcher import EmbeddingFetcher
