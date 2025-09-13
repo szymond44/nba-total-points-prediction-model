@@ -10,7 +10,7 @@ class LeagueGameLogProcessing(DataProcessing):
        'away_fg3a', 'home_fg3_pct', 'away_fg3_pct', 'home_oreb', 'away_oreb',
        'home_dreb', 'away_dreb', 'home_ast', 'away_ast', 'home_stl',
        'away_stl', 'home_blk', 'away_blk', 'home_tov', 'away_tov', 'home_pf',
-       'away_pf', 'home_pts', 'away_pts', 'home_team', 'away_team', 'date']
+       'away_pf', 'home_pts', 'away_pts', 'home_team_id', 'away_team_id', 'date']
     
     def __init__(self, **kwargs):
         if 'starting_year' not in kwargs or 'ending_year' not in kwargs:
@@ -29,8 +29,8 @@ class LeagueGameLogProcessing(DataProcessing):
             all_games.extend(season_data)
 
         df = pd.DataFrame(all_games)
-        df = self.__apply_params__(df.copy())
         df = self.__get_id__(df.copy())
+        df = self.__apply_params__(df.copy())
         df = df.sort_values(by='date').reset_index(drop=True)
         return df.to_dict(orient='records')
 
@@ -42,12 +42,10 @@ class LeagueGameLogProcessing(DataProcessing):
         df['home_team_id'] = df['home_team'].map(team_to_id)
         df['away_team_id'] = df['away_team'].map(team_to_id)
 
-        df = df.drop(columns=['home_team', 'away_team'])
-
         return df
 
     def __apply_params__(self, df):
-        if hasattr(self, '__all__') and self.__all__:  # Dodaj sprawdzenie hasattr
+        if hasattr(self, '__all__') and self.__all__:
             return df
         return df[self.OBLIGATORY_COLUMNS]
         
@@ -87,7 +85,6 @@ class LeagueGameLogProcessing(DataProcessing):
                 games_dict[game_id]['away_team'] = team_name
                 games_dict[game_id]['away_stats'] = stats
 
-        # Create the final list of games with all stats
         final_games = []
         for game_id, game_info in games_dict.items():
             if game_info['home_team'] and game_info['away_team'] and game_info['home_stats'] and game_info['away_stats']:

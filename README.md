@@ -35,7 +35,8 @@ df = api.get_dataframe('boxscoreadvanced')
 ## 📚 Notebooks
 
 🔬 **Data exploring**
-- [Team data](notebooks/nba-team-data-exploration.ipynb)
+- [Basic featueres + Points distributions](notebooks/nba-team-data-exploration-1.ipynb)
+- [Advanced features](notebooks/nba-team-data-exploration-2.ipynb)
 
 🎯 **Model testing**
 - [Primary team embedding model](notebooks/nba-embedding-model-testing.ipynb)

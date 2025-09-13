@@ -13,17 +13,18 @@ class ApiFetcher:
     BASE_URL = "127.0.0.1:8000/api/"
 
     def __init__(self, starting_year, ending_year):
-        self.__starting_year = starting_year
-        self.__ending_year = ending_year
+        self.starting_year = starting_year
+        self.ending_year = ending_year
     
-    def get_dataframe(self, endpoint: Literal["leaguegamelog", "boxscoreadvanced"] = None):
+    def get_dataframe(self, endpoint: Literal["leaguegamelog", "boxscoreadvanced"] = None, **kwargs) -> pd.DataFrame:
         if endpoint is None:
             raise ValueError("Endpoint must be specified")
             
         url = f"http://{self.BASE_URL}{endpoint}"
         params = {
-            "starting_year": self.__starting_year,
-            "ending_year": self.__ending_year
+            "starting_year": self.starting_year,
+            "ending_year": self.ending_year,
+            **kwargs
         }
         
         response = requests.get(url, params=params)
