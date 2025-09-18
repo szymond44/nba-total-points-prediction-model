@@ -47,7 +47,7 @@ class ApiFetcher:
             **kwargs,
         }
 
-        response = requests.get(url, params=params, timeout=10)
+        response = requests.get(url, params=params, timeout=60)
         if response.status_code != 200:
             raise requests.HTTPError(
                 f"API request failed with status code {response.status_code}"

@@ -47,7 +47,7 @@ class LeagueGameLogProcessing(DataProcessing):
 
         self.__starting_year__ = int(kwargs["starting_year"])
         self.__ending_year__ = int(kwargs["ending_year"])
-        super().__init__(**kwargs)
+        super().__init__()
 
     def __process_data__(self):
         all_games = []

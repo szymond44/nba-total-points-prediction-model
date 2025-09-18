@@ -4,7 +4,9 @@ import random
 import signal
 import sys
 import time
-from concurrent.futures import ThreadPoolExecutor, TimeoutError, as_completed
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import TimeoutError as FuturesTimeoutError
+from concurrent.futures import as_completed
 from pathlib import Path
 from threading import Event, Lock
 
@@ -74,7 +76,7 @@ class BoxScoreAdvancedProcessing(DataProcessing):
         data = self.__process_seasons(self.__starting_year, self.__ending_year)
         return self.__convert_numpy_types(data)
 
-    def __signal_handler(self):
+    def __signal_handler(self, signum, frame):
         print("\n🛑 Received interrupt signal. Saving cache and stopping...")
         self.__stop_event.set()
         self.__save_cache()
@@ -181,8 +183,9 @@ class BoxScoreAdvancedProcessing(DataProcessing):
                                 )
 
                             except Exception as e:
+
                                 # Only handle specific exceptions related to futures
-                                if isinstance(e, concurrent.futures.TimeoutError):
+                                if isinstance(e, FuturesTimeoutError):
                                     print(f"⏰ TimeoutError for {game_id}: {e}")
                                 else:
                                     print(f"⏰ Error for {game_id}: {e}")

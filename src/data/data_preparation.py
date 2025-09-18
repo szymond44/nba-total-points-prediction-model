@@ -7,26 +7,24 @@ from sklearn.preprocessing import StandardScaler
 from data.api_fetcher import ApiFetcher
 from data.time_series_dataset import TimeSeriesDataset
 
-EndpointName = Literal["leaguegamelog", "boxscoreadvanced"]
+EndpointName = Literal["leaguegamelog", "boxscoreadvanced", "mixed"]
 
 
 class DataPreparation:
     """Class for preparing data for modeling."""
 
-    STARTING_YEAR = date.today().year - 6
-    ENDING_YEAR = date.today().year + 1
-
     TRAIN_SIZE = 0.7
     VAL_SIZE = 0.15
 
-    def __init__(self, endpoint: EndpointName):
-        self._api = ApiFetcher(starting_year=2019, ending_year=2025)
+    def __init__(self, endpoint: EndpointName, starting_year: int = 2000, ending_year: int = date.today().year):
+        self._api = ApiFetcher(starting_year=starting_year, ending_year=ending_year)
 
         self._endpoint_funcs: Dict[
             str, Callable[..., Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]]
         ] = {
             "leaguegamelog": self.fetch_league_game_log,
             "boxscoreadvanced": self.fetch_boxscore_advanced,
+            "mixed": self.fetch_merged_data,
         }
 
         if endpoint not in self._endpoint_funcs:
@@ -43,8 +41,7 @@ class DataPreparation:
         df = df.drop(columns=["game_id"])
         train_df, val_df, test_df = self._split_df(df)
 
-        return self._scale_data(
-            train_df, val_df, test_df)
+        return self._scale_data(train_df, val_df, test_df)
 
     def fetch_boxscore_advanced(self):
         """Fetch and prepare boxscore advanced data."""
@@ -63,9 +60,37 @@ class DataPreparation:
             "home_ts_pct",
         ]
         df = df.drop(columns=drop_cols)
+        suffixes = [c.replace("away_", "").replace("home_", "") for c in drop_cols]
         df = df.rename(
-            columns={c: c.replace("away_", "").replace("home_", "") for c in drop_cols}
+            columns={
+                c: c.replace("away_", "").replace("home_", "")
+                for c in df.columns
+                if any(c.endswith(suf) for suf in suffixes)
+            }
         )
+
+        additional_cols_to_drop = ['home_usg_pct', 'away_usg_pct']
+        df = df.drop(columns=additional_cols_to_drop)
+
+        drop_features = [
+            "away_def_rating",
+            "away_off_rating",
+            "away_net_rating",
+            "est_pace",
+            "away_pace_per40",
+            "home_est_tov_pct",
+            "away_est_tov_pct",
+            "away_possessions",
+            "est_net_rating",
+            "est_def_rating",
+            "est_off_rating",
+            "pie",
+            "home_off_rating",
+            "home_pace_per40",
+            "home_def_rating",
+            "home_possessions",
+        ]
+        df = df.drop(columns=drop_features)
 
         df_leaguegamelog = self._api.get_dataframe(endpoint="leaguegamelog")
         df_leaguegamelog = df_leaguegamelog[["game_id", "home_pts", "away_pts"]]
@@ -75,16 +100,60 @@ class DataPreparation:
 
         train_df, val_df, test_df = self._split_df(df)
 
+        return self._scale_data(train_df, val_df, test_df)
 
-        return self._scale_data(
-            train_df, val_df, test_df)
+    def fetch_merged_data(self):
+        """Fetch and prepare merged data from both endpoints."""
+        df1 = self._api.get_dataframe(endpoint="leaguegamelog")
+        df2 = self._api.get_dataframe(endpoint="boxscoreadvanced")
+
+        df = df1.merge(df2, on="game_id", suffixes=("_lg", "_ba"))
+        df = df.drop(columns=["game_id", "home_minutes", "away_minutes"])
+        keep_suffix = "_lg"
+        cols_to_keep = []
+        for col in df.columns:
+            if col.endswith(keep_suffix):
+                cols_to_keep.append(col)
+            elif not (col.endswith("_lg") or col.endswith("_ba")):
+                cols_to_keep.append(col)
+
+        df = df[cols_to_keep]
+        df.columns = [col.replace("_lg", "").replace("_ba", "") for col in df.columns]
+
+        drop_cols = [
+            "away_est_def_rating",
+            "away_est_off_rating",
+            "away_est_net_rating",
+            "away_pace",
+            "away_pie",
+            "away_oreb_pct",
+            "away_dreb_pct",
+            "away_reb_pct",
+            "away_ts_pct",
+            "home_ts_pct",
+        ]
+        df = df.drop(columns=drop_cols)
+        suffixes = [c.replace("away_", "").replace("home_", "") for c in drop_cols]
+        df = df.rename(
+            columns={
+                c: c.replace("away_", "").replace("home_", "")
+                for c in df.columns
+                if any(c.endswith(suf) for suf in suffixes)
+            }
+        )
+
+        df = df.drop(columns=['away_def_rating'])
+
+        train_df, val_df, test_df = self._split_df(df)
+
+        return df
 
     def _split_df(
         self, data: pd.DataFrame
     ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         """Split dataframe into train, validation and test sets."""
         df = data.copy()
-        df = df.sort_values(by="date")
+        df = df.sort_values(by="date").reset_index(drop=True)
         df = df.drop(columns=["date"])
 
         n = len(df)
@@ -104,13 +173,13 @@ class DataPreparation:
         test_df: pd.DataFrame,
     ) -> Tuple[TimeSeriesDataset, TimeSeriesDataset, TimeSeriesDataset]:
         scaler = StandardScaler()
-        labels_cols = ["home_pts", "away_pts"]
+        labels_cols = ["home_pts", "away_pts", "home_team_id", "away_team_id"]
         feature_cols = [col for col in train_df.columns if col not in labels_cols]
         train_df[feature_cols] = scaler.fit_transform(train_df[feature_cols])
         val_df[feature_cols] = scaler.transform(val_df[feature_cols])
         test_df[feature_cols] = scaler.transform(test_df[feature_cols])
 
-        seq_length = 10
+        seq_length = 5
         horizon = 1
 
         train_dataset = TimeSeriesDataset(
