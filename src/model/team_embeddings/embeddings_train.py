@@ -12,7 +12,7 @@ class TeamEmbeddingsModel:
        'away_fg3a', 'home_fg3_pct', 'away_fg3_pct', 'home_oreb', 'away_oreb',
        'home_dreb', 'away_dreb', 'home_ast', 'away_ast', 'home_stl',
        'away_stl', 'home_blk', 'away_blk', 'home_tov', 'away_tov', 'home_pf',
-       'away_pf', 'home_pts', 'away_pts', 'home_team', 'away_team', 'date',
+       'away_pf', 'home_pts', 'away_pts', 'date',
        'home_team_id', 'away_team_id']
     
     def __init__(self, data):
