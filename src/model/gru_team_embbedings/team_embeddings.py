@@ -57,9 +57,8 @@ class TeamEmbeddings(nn.Module):
         x = apply_time_decay(x, decay_factor=0.8)
         out, _ = self.gru(x)
         out = out[:, -1, :]
-        self.dropout(out)
+        out = self.dropout(out)
         return self.fc(out)
-    
 
 def apply_time_decay(x, decay_factor=0.8):
     """

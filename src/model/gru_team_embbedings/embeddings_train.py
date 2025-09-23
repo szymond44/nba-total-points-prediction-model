@@ -21,11 +21,16 @@ class EmbeddingsTrain:
         self, 
         batch: Union[Tuple[torch.Tensor, torch.Tensor], Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]]
     ) -> Tuple[torch.Tensor, torch.Tensor]:
+        # Poprawka: obsługa sekwencji [batch, seq_len, features] oraz targetu [batch, output_dim]
         if len(batch) == 2:
             xb, yb = batch
             xb, yb = xb.to(self.device), yb.to(self.device)
-            if yb.ndim == 3:
-                yb = yb.squeeze(1)
+            # Jeśli xb ma kształt [seq_len, features], dodaj batch dim
+            if xb.ndim == 2:
+                xb = xb.unsqueeze(0)
+            # Jeśli yb ma kształt [output_dim], dodaj batch dim
+            if yb.ndim == 1:
+                yb = yb.unsqueeze(0)
             preds = self.model(xb)
             return preds, yb
         elif len(batch) == 4:
@@ -34,8 +39,12 @@ class EmbeddingsTrain:
             home_ids = home_ids.to(self.device)
             away_ids = away_ids.to(self.device)
             yb = yb.to(self.device)
-            if yb.ndim == 3:
-                yb = yb.squeeze(1)
+            # Jeśli xb ma kształt [seq_len, features], dodaj batch dim
+            if xb.ndim == 2:
+                xb = xb.unsqueeze(0)
+            # Jeśli yb ma kształt [output_dim], dodaj batch dim
+            if yb.ndim == 1:
+                yb = yb.unsqueeze(0)
             preds = self.model(xb, home_ids, away_ids)
             return preds, yb
         else:

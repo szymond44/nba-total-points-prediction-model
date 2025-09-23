@@ -31,6 +31,7 @@ class DataPreparation:
             raise ValueError(f"Unsupported endpoint: {endpoint}")
 
         self._endpoint = endpoint
+        self.dfs: Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame] = (None, None, None)
         self.data: Tuple[TimeSeriesDataset, TimeSeriesDataset, TimeSeriesDataset] = (
             self._endpoint_funcs[endpoint]()
         )
@@ -40,6 +41,7 @@ class DataPreparation:
         df = self._api.get_dataframe(endpoint="leaguegamelog")
         df = df.drop(columns=["game_id"])
         train_df, val_df, test_df = self._split_df(df)
+        self.dfs = (train_df, val_df, test_df)
 
         return self._scale_data(train_df, val_df, test_df)
 
@@ -99,6 +101,7 @@ class DataPreparation:
         df = df.drop(columns=["game_id"])
 
         train_df, val_df, test_df = self._split_df(df)
+        self.dfs = (train_df, val_df, test_df)
 
         return self._scale_data(train_df, val_df, test_df)
 
@@ -146,7 +149,9 @@ class DataPreparation:
 
         train_df, val_df, test_df = self._split_df(df)
 
-        return df
+        self.dfs = (train_df, val_df, test_df)
+
+        return self._scale_data(train_df, val_df, test_df)
 
     def _split_df(
         self, data: pd.DataFrame
@@ -154,7 +159,6 @@ class DataPreparation:
         """Split dataframe into train, validation and test sets."""
         df = data.copy()
         df = df.sort_values(by="date").reset_index(drop=True)
-        df = df.drop(columns=["date"])
 
         n = len(df)
         t_end = int(self.TRAIN_SIZE * n)
@@ -173,11 +177,14 @@ class DataPreparation:
         test_df: pd.DataFrame,
     ) -> Tuple[TimeSeriesDataset, TimeSeriesDataset, TimeSeriesDataset]:
         scaler = StandardScaler()
-        labels_cols = ["home_pts", "away_pts", "home_team_id", "away_team_id"]
+        labels_cols = ["home_pts", "away_pts", "home_team_id", "away_team_id", "date"]
         feature_cols = [col for col in train_df.columns if col not in labels_cols]
         train_df[feature_cols] = scaler.fit_transform(train_df[feature_cols])
         val_df[feature_cols] = scaler.transform(val_df[feature_cols])
         test_df[feature_cols] = scaler.transform(test_df[feature_cols])
+        train_df = train_df.drop(columns=["date"])
+        val_df = val_df.drop(columns=["date"])
+        test_df = test_df.drop(columns=["date"])
 
         seq_length = 5
         horizon = 1
