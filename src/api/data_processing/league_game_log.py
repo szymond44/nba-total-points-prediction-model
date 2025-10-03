@@ -9,34 +9,42 @@ class LeagueGameLogProcessing(DataProcessing):
     """Class for processing league game log data from the API."""
 
     OBLIGATORY_COLUMNS = [
-        "game_id",
-        "home_fga",
-        "away_fga",
-        "home_fg_pct",
-        "away_fg_pct",
-        "home_fg3a",
-        "away_fg3a",
-        "home_fg3_pct",
-        "away_fg3_pct",
-        "home_oreb",
-        "away_oreb",
-        "home_dreb",
-        "away_dreb",
-        "home_ast",
-        "away_ast",
-        "home_stl",
-        "away_stl",
-        "home_blk",
-        "away_blk",
-        "home_tov",
-        "away_tov",
-        "home_pf",
-        "away_pf",
-        "home_pts",
-        "away_pts",
-        "home_team_id",
-        "away_team_id",
-        "date",
+OBLIGATORY_COLUMNS = [
+    "game_id",
+    "home_fga",
+    "away_fga",
+    "home_fg_pct",
+    "away_fg_pct",
+    "home_fg3a",
+    "away_fg3a",
+    "home_fg3_pct",
+    "away_fg3_pct",
+    "home_fta",      # ← ADD THIS
+    "away_fta",      # ← ADD THIS
+    "home_ft_pct",   # ← ADD THIS (optional, but useful)
+    "away_ft_pct",   # ← ADD THIS (optional, but useful)
+    "home_ftm",      # ← ADD THIS (optional, free throws made)
+    "away_ftm",      # ← ADD THIS (optional, free throws made)
+    "home_oreb",
+    "away_oreb",
+    "home_dreb",
+    "away_dreb",
+    "home_ast",
+    "away_ast",
+    "home_stl",
+    "away_stl",
+    "home_blk",
+    "away_blk",
+    "home_tov",
+    "away_tov",
+    "home_pf",
+    "away_pf",
+    "home_pts",
+    "away_pts",
+    "home_team_id",
+    "away_team_id",
+    "date",
+]
     ]
 
     def __init__(self, **kwargs):
