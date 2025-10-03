@@ -9,7 +9,6 @@ class LeagueGameLogProcessing(DataProcessing):
     """Class for processing league game log data from the API."""
 
     OBLIGATORY_COLUMNS = [
-OBLIGATORY_COLUMNS = [
     "game_id",
     "home_fga",
     "away_fga",
@@ -45,7 +44,7 @@ OBLIGATORY_COLUMNS = [
     "away_team_id",
     "date",
 ]
-    ]
+    
 
     def __init__(self, **kwargs):
         if "starting_year" not in kwargs or "ending_year" not in kwargs:
