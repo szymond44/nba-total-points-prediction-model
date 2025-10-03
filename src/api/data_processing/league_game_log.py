@@ -19,12 +19,12 @@ OBLIGATORY_COLUMNS = [
     "away_fg3a",
     "home_fg3_pct",
     "away_fg3_pct",
-    "home_fta",      # ← ADD THIS
-    "away_fta",      # ← ADD THIS
-    "home_ft_pct",   # ← ADD THIS (optional, but useful)
-    "away_ft_pct",   # ← ADD THIS (optional, but useful)
-    "home_ftm",      # ← ADD THIS (optional, free throws made)
-    "away_ftm",      # ← ADD THIS (optional, free throws made)
+    "home_fta",     
+    "away_fta",     
+    "home_ft_pct",   
+    "away_ft_pct",   
+    "home_ftm",      
+    "away_ftm",      
     "home_oreb",
     "away_oreb",
     "home_dreb",
