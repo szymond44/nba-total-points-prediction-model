@@ -1,13 +1,11 @@
 from fastapi import FastAPI, HTTPException, Request
 
-from .data_processing import (BoxScoreAdvancedProcessing,
-                              LeagueGameLogProcessing)
+from .data_processing import LeagueGameLogProcessing
 
 app = FastAPI()
 
 AVAILABLE_ENDPOINTS = {
     "leaguegamelog": LeagueGameLogProcessing,
-    "boxscoreadvanced": BoxScoreAdvancedProcessing,
 }
 
 
