@@ -1,0 +1,34 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[project]
+name = "nba-prediction-model"
+version = "0.1.0"
+description = "Streamlit app with FastAPI backend for certain Basketball predictions"
+requires-python = ">=3.10"
+
+dependencies = [
+    "fastapi>=0.100.0",
+    "sqlalchemy>=2.0",
+    "asyncpg>=0.28",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "black>=23.0",
+    "ruff>=0.1",
+]
+
+[project.scripts]
+nba-api = "src.neo_api.main:run"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.black]
+line-length = 100
+
+[tool.ruff]
+line-length = 100

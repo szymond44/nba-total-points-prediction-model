@@ -1,5 +1,14 @@
+# Global ignores
 .vscode/
 .conda/
 **/__pycache__/
 *.pyc
 *.pyo
+.venv/
+
+# Data
+data/app.db
+data/*.db-wal
+data/*.db-shm
+!data/
+!data/.gitkeep
