@@ -10,8 +10,6 @@ requires-python = ">=3.10"
 
 dependencies = [
     "fastapi>=0.100.0",
-    "sqlalchemy>=2.0",
-    "asyncpg>=0.28",
 ]
 
 [project.optional-dependencies]
@@ -37,3 +35,6 @@ line_length = 88
 
 [tool.ruff]
 line-length = 100
+
+[MESSAGES CONTROL]
+disable=C0114
