@@ -1,5 +1,6 @@
 # Global ignores
 .vscode/
+env/
 .conda/
 **/__pycache__/
 *.pyc

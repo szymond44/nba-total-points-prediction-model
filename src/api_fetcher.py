@@ -19,7 +19,7 @@ class ApiFetcher:
         self.ending_year = ending_year
 
     def get_dataframe(
-        self, endpoint: Literal["leaguegamelog"] = None, **kwargs
+        self, endpoint: Literal["leaguegamelog", "playergamelogs/all"] = None, **kwargs
     ) -> pd.DataFrame:
         """
         Fetches data from the specified API endpoint and returns it as a pandas DataFrame.
